@@ -1,0 +1,105 @@
+import pandas as pd
+
+# кортеж с именами менеджеров
+name_tuple = ('ангелина', 'максим', 'анастасия', 'денис', 'константин', 'елена', 'дмитрий')
+
+# кортеж с приветствиями
+hello_tuple = ('здравствуйте', 'доброе утро', 'добрый день', 'добрый вечер')
+
+# кортеж с прощаниями
+bye_tuple = ('до свидания', 'всего хорошего', 'всего доброго')
+
+# кортеж с названиями компаний
+comp_tuple = ('диджитал бизнес', 'китобизнес')
+
+# чтение файла данных
+data_frame = pd.read_csv('test_data.csv', delimiter=',')
+
+# оставляем только фразы менеджера
+manager_frame = data_frame[data_frame.role == 'manager']
+
+# убираем регистр
+manager_frame.text = manager_frame.text.str.lower()
+
+
+privet = manager_frame.text.str.contains('здравствуйте')
+res = manager_frame.loc[privet]
+
+
+# a = len(manager_frame['dlg_id'].unique())
+
+# список всех dlg_id
+s = manager_frame['dlg_id'].unique().tolist()
+
+hello_manager = ''
+name_manager_str = ''
+bye_manager_str = ''
+name_manager = 'отсутствует'
+name_comp = 'отсутствует'
+
+# проверяем отдельные диалоги менеджеров
+for i in s:
+    
+# создаем дата фрейм для dlg_id = i
+    dlg_frame = manager_frame[manager_frame.dlg_id == s[i]]
+
+# проверяем каждую строку дата фрейма представляя её как кортеж
+    for j in dlg_frame.itertuples():
+        
+# для всех значений из кортежа с приветствиями проверяем есть ли они в столбце text
+        for value in hello_tuple:
+            if value in j[4]:
+                hello_manager_str = j[4]
+        
+# проверяем представился ли менеджер, получаем его имя и название компании
+        if 'зовут' in j[4]:
+            for value in name_tuple:
+                if value in j[4]:
+                    name_manager = value
+                    name_manager_str = j[4]
+            if 'компания' in j[4]:
+                for value in comp_tuple:
+                    if value in j[4]:
+                        name_comp = value
+        elif 'это' in j[4]:
+            for value in name_tuple:
+                if value in j[4]:
+                    name_manager = value
+                    name_manager_str = j[4]
+            if 'компания' in j[4]:
+                for value in comp_tuple:
+                    if value in j[4]:
+                        name_comp = value
+    
+# для всех значений из кортежа с прощаниями проверяем есть ли они в столбце text
+        for value in bye_tuple:
+            if value in j[4]:
+                bye_manager = value
+                bye_manager_str = j[4]
+                
+# вывод данных по каждому диалогу менеджера
+    print('Диалог №', i, ', имя менеджера', name_manager, ', название компании', name_comp)
+
+    if hello_manager_str == '':
+        print('Нет приветствия')
+    else:
+        print(hello_manager_str)
+        
+    if name_manager_str == '':
+        print('Нет имени менеджера')
+    else:
+        print(name_manager_str)
+
+    if bye_manager_str == '':
+        print('Нет прощания')
+    else:
+        print(bye_manager_str)
+      
+    print('\n')
+    
+# "обнуляем" переменные для анализа следующего диалога менеджера
+    name_manager = 'отсутствует'
+    name_comp = 'отсутствует'
+    name_manager_str = ''
+    hello_manager_str = ''
+    bye_manager_str = ''
